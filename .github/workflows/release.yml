@@ -1,0 +1,25 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+      - run: npm ci
+      - run: |
+         git config --global user.email "ci@example.com"
+         git config --global user.name "continuous integration"
+      - run: lerna version --exact --conventional-commits --yes --create-release github
+        env:
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: cleanup node_modules
+        run: rm -rf node_modules
